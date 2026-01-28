@@ -20,7 +20,7 @@ def pateints_data() :
     data = load_data()
     return data
 
-@app.get("/patients/{patient_id}")
+@app.get("/patients/{patient_id}") # Path Parameter
 def view_patient(patient_id: str = Path(... , description ='ID of the patient in DB', example='P001') ):
     data = load_data()
     
@@ -28,13 +28,17 @@ def view_patient(patient_id: str = Path(... , description ='ID of the patient in
         return data[patient_id]
     raise HTTPException(status_code=404, detail="Patient not found")
 
-@app.get("\sort")
-def sort_patient(sort_by: str = Query(..., description="Attribute to sort by", example="age")):
-    data = load_data()
-    
-    try:
-        sorted_data = dict(sorted(data.items(), key=lambda item: item[1][sort_by]))
-        return sorted_data
-    except KeyError:
-        raise HTTPException(status_code=400, detail=f"Invalid sort attribute: {sort_by}")
+# QUERY PARAMETER
 
+@app.get("/sort")
+def sort_patients(sort_by: str = Query(..., description='sort on the basis of Height , Weight Or bmi'),
+                  order : str = Query('asc', description = "sort in asc or desc order")):
+    valid_fields = ['height', 'weight', 'bmi']
+    if sort_by not in valid_fields:
+        raise HTTPException(status_code = 400 , detail=f'invalid field select from {valid_fields}')
+    if order not in ['asc','desc']:
+        raise HTTPException(status_code = 400, detail = 'Order must be asc or desc')
+    data = load_data()
+    sort_order = True if order =='desc' else False
+    sorted_data = sorted(data.values(), key = lambda x : x.get(sort_by,0), reverse= sort_order)
+    return sorted_data
