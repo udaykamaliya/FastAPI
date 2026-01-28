@@ -14,13 +14,18 @@ def load_data():
 def hello() :
     return {"message": "Hello, World!"}
 
+@app.get("/about")
+def about():
+    return {"app": "Patient Data API", "version": "1.0.0"}
+
 
 @app.get("/view")
 def pateints_data() :
     data = load_data()
     return data
 
-@app.get("/patients/{patient_id}") # Path Parameter
+# Path Parameter
+@app.get("/patients/{patient_id}") 
 def view_patient(patient_id: str = Path(... , description ='ID of the patient in DB', example='P001') ):
     data = load_data()
     
